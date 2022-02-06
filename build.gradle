@@ -1,7 +1,10 @@
 plugins {
+	id 'java'
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
+	id 'pl.allegro.tech.build.axion-release' version '1.13.6'
+	id 'com.palantir.docker' version '0.31.0'
+	id 'com.palantir.docker-run' version '0.31.0'
 }
 
 group = 'com.example'
@@ -32,4 +35,21 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+project.version = scmVersion.version
+
+String imageName = "ldphong93/jenkins-demo:$version"
+
+docker {
+	name imageName
+	files "build/libs/${bootJar.archiveFileName.get()}"
+	buildArgs([JAR_FILE: bootJar.archiveFileName.get()])
+}
+
+dockerRun {
+	name project.name
+	image imageName
+	ports '8080:8082'
+	clean true
 }
